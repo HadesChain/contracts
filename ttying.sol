@@ -56,15 +56,16 @@ contract ttying{
     {
         address payable customer = msg.sender;
         require(amount > 0);
-        require(ledger[customer].balance+ledger[customer].profit+calc(customer)>=amount);
+        require(ledger[customer].balance+profits(customer)>=amount);
         
         liquid(customer); // 清算利息
 
         if(ledger[customer].profit>=amount) { // 如果取款额度<=利息
             ledger[customer].profit -= amount;
         } else { // 如果取款额度>利息
+            uint256 _profit = ledger[customer].profit;
             ledger[customer].profit = 0;
-            ledger[customer].balance = SafeMath.sub(ledger[customer].balance, SafeMath.sub(amount,ledger[customer].profit));
+            ledger[customer].balance = SafeMath.sub(ledger[customer].balance, SafeMath.sub(amount,_profit));
         }
 
         customer.transfer(amount); // 给用户转币
